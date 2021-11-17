@@ -27,7 +27,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Create license
-        run: echo ${{ secrets.STATA_LIC_BASE64 }} | base64 -d > stata.lic
+        run: echo "${{ secrets.STATA_LIC_BASE64 }}" | base64 -d > stata.lic
       -
         name: Build and push
         uses: docker/build-push-action@v2
