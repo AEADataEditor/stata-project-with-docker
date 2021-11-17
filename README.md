@@ -1,23 +1,28 @@
-# Docker image basic Stata image
+# Creating a Stata project with automated Docker builds
+
+[![Build docker image](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/ci.yml/badge.svg)](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/ci.yml)
 
 ## Purpose
 
-This Docker image is meant to isolate and stabilize that environment, and should be portable across
-multiple operating system, as long as [Docker](https://docker.com) is available.
-
-> To learn more about the use of containers for research reproducibility, see [Carpentries' docker-introduction](https://carpentries-incubator.github.io/docker-introduction/index.html). For commercial services running containers, see [codeocean.com](https://codeocean.com), [gigantum](https://gigantum.com/), or any of the cloud service providers. For an academic project using containers, see [Whole Tale](https://wholetale.org/).
-
-> NOTE: The image created by these instructions contains binary code that is &copy; Stata. Permission was granted by Stata to Lars Vilhuber to post these images, without the license. A valid license is necessary to build and use these images. 
+Coming
 
 ## Requirements
 
-You need a Stata license to run the image. If rebuilding, may need Stata license to build the image.
+You need a Stata license to run the image, and the license needs to be available to the Github Action as `STATA_LIC_BASE64` in "base64" format. From a Linux/macOS command line, you could generate it like this:
+
+```bash
+gh secret set STATA_LIC_BASE64 -b"$(cat stata.lic | base64)" -v all -o YOURORG
+```
+
+where `stata.lic` is your Stata license file, and `YOURORG` is your organization (can be dropped if running in your personal account).
+
+
 
 ## Dockerfile
 
 The [Dockerfile](Dockerfile) contains the build instructions. A few things of note:
 
-
+(NEED TO FINISH THIS)
 
 ## Build
 
@@ -191,5 +196,3 @@ docker run --secret id=statalic,src=stata.lic.${VERSION} \
 and the results of running the code (in `code`) on the data (in `data`) will show up in the `results` folder which is local to your workstation.
 
 ## NOTE
-
-This entire process could be automated, using [Travis-CI](https://docs.travis-ci.com/user/docker/#pushing-a-docker-image-to-a-registry) or [Github Actions](https://github.com/marketplace/actions/build-and-push-docker-images). Not done yet.
