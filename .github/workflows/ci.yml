@@ -15,7 +15,10 @@ jobs:
         uses: actions/checkout@v2
       -
         name: Create license
-        run: echo "${{ secrets.STATA_LIC_BASE64 }}" | base64 -d > stata.lic
+        run: |
+            echo "${{ secrets.STATA_LIC_BASE64 }}" | base64 -d > stata.lic 
+            ls -l stata.lic
+            cat stata.lic
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
