@@ -22,5 +22,47 @@ Notes:
       4. Maximum number of variables is set to 5,000; see help set_maxvar.
 
 . do "main.do" 
-file main.do not found
-r(601);
+
+. /* main.do */
+. /* Author: Lars Vilhuber */
+. 
+. global BASEDIR "/" /* <--- adjust as necessary */
+
+. 
+. global DATADIR "${BASEDIR}/data"
+
+. global CODEDIR "${BASEDIR}/code"
+
+. 
+. sysuse auto
+(1978 automobile data)
+
+. desc
+
+Contains data from /usr/local/stata/ado/base/a/auto.dta
+ Observations:            74                  1978 automobile data
+    Variables:            12                  13 Apr 2020 17:45
+                                              (_dta has notes)
+-------------------------------------------------------------------------------
+Variable      Storage   Display    Value
+    name         type    format    label      Variable label
+-------------------------------------------------------------------------------
+make            str18   %-18s                 Make and model
+price           int     %8.0gc                Price
+mpg             int     %8.0g                 Mileage (mpg)
+rep78           int     %8.0g                 Repair record 1978
+headroom        float   %6.1f                 Headroom (in.)
+trunk           int     %8.0g                 Trunk space (cu. ft.)
+weight          int     %8.0gc                Weight (lbs.)
+length          int     %8.0g                 Length (in.)
+turn            int     %8.0g                 Turn circle (ft.)
+displacement    int     %8.0g                 Displacement (cu. in.)
+gear_ratio      float   %6.2f                 Gear ratio
+foreign         byte    %8.0g      origin     Car origin
+-------------------------------------------------------------------------------
+Sorted by: foreign
+
+. 
+. 
+. 
+end of do-file
