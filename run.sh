@@ -7,21 +7,26 @@ then
 fi
 STATALIC=$(readlink -m $1)
 
-DOCKEROPTS="-it --rm"
-# When we are on Github Actions
-[[ $CI ]] && DOCKEROPTS="--rm"
-
 if [[ ! -f $STATALIC ]] 
 then
   echo "You specified $STATALIC - that is not a file"
 	exit 2
 fi
 
-source .versions
-
+# When we are on Github Actions
+if [[ $CI ]] 
+then
+   DOCKEROPTS="--rm"
+   DOCKERIMG=$(echo $GITHUB_REPOSITORY | tr [A-Z] [a-z])
+   TAG=latest
+else
+   DOCKEROPTS="-it --rm"
+   source .versions
+   DOCKERIMG=$MYHUBID/$MYIMG
+fi
 docker run $DOCKEROPTS \
   -v ${STATALIC}:/usr/local/stata/stata.lic \
   -v $(pwd)/code:/code \
   -v $(pwd)/data:/data \
-  $MYHUBID/$MYIMG:$TAG -b main.do
+  $DOCKERIMG:$TAG -b main.do
 
