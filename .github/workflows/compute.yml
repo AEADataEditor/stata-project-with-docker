@@ -27,8 +27,7 @@ jobs:
           script: return '${{ github.repository }}'.toLowerCase()
       # Compute the main result, re-using the run.sh script
       -  name: Compute
-        run: |
-            ./run.sh ./stata.lic
+         run: "./run.sh ./stata.lic"
       # send it to the results branch
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3.8.0
