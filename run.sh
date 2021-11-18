@@ -26,8 +26,8 @@ else
 fi
 
 # ensure that the directories are writable by Docker
-chmod a+rwX code 
-chmod a+rwX data
+chmod a+rwX code code/*
+chmod a+rwX data 
 
 # run the docker and the Stata file
 # note that the working directory will be set to '/code' by default
