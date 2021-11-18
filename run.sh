@@ -19,7 +19,7 @@ fi
 
 source .versions
 
-docker run -it --rm \
+docker run $DOCKEROPTS \
   -v ${STATALIC}:/usr/local/stata/stata.lic \
   -v $(pwd)/code:/code \
   -v $(pwd)/data:/data \
