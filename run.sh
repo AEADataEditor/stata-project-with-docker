@@ -25,7 +25,7 @@ else
    DOCKERIMG=$MYHUBID/$MYIMG
 fi
 pwd
-ls
+ls -l code
 docker run $DOCKEROPTS \
   -v ${STATALIC}:/usr/local/stata/stata.lic \
   -v $(pwd)/code:/code \
