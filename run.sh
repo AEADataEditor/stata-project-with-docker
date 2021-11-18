@@ -24,6 +24,7 @@ else
    source .versions
    DOCKERIMG=$MYHUBID/$MYIMG
 fi
+pwd
 docker run $DOCKEROPTS \
   -v ${STATALIC}:/usr/local/stata/stata.lic \
   -v $(pwd)/code:/code \
