@@ -2,8 +2,8 @@ name: Build docker image
 
 on:
   push:
-    branches:
-      - 'master'
+    paths:
+      - 'Dockerfile'
   workflow_dispatch:
 
 jobs:

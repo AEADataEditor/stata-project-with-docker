@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Coming
+This is a demonstration of using Stata, using Docker to robustly encapsulate the Stata environment, and using Github Actions to automatically run everything - the Docker build as well as the actual analysis.
 
 ## Requirements
 
@@ -17,7 +17,6 @@ gh secret set STATA_LIC_BASE64 -b"$(cat stata.lic | base64)" -v all -o YOURORG
 where `stata.lic` is your Stata license file, and `YOURORG` is your organization (can be dropped if running in your personal account).
 
 
-
 ## Dockerfile
 
 The [Dockerfile](Dockerfile) contains the build instructions. A few things of note:
@@ -26,70 +25,10 @@ The [Dockerfile](Dockerfile) contains the build instructions. A few things of no
 
 ## Build
 
-### Set up a few things
+You can build the file yourself locally, see `build.sh`. You will need a valid Stata license file. 
 
-Set the `TAG` and `IMAGEID` accordingly. `VERSION` should be the Stata version.
+You can also enable the Github Action, and use the cloud to build. For illustration purposes, the Docker image built through this mechanism can be found at [https://hub.docker.com/r/aeadataeditor/stata-project-with-docker](https://hub.docker.com/r/aeadataeditor/stata-project-with-docker).
 
-```
-VERSION=17
-TAG=$(date +%F)
-MYHUBID=dataeditors
-MYIMG=stata${VERSION}
-```
-
-### Build the image
-
-The Dockerfile relies on BuildKit syntax, for passing the license information.
-Use the following if you just want to rebuild the Docker image (will re-use key cached information):
-
-```
-DOCKER_BUILDKIT=1 docker build  . \
-  --secret id=statalic,src=stata.lic.${VERSION} \
-  -t $MYHUBID/${MYIMG}:$TAG
-```
-
-or, if updating Stata, use the following, which will force an update through Stata:
-
-```
-DOCKER_BUILDKIT=1 docker build  . \
-  --secret id=statalic,src=stata.lic.${VERSION} \
-  --build-arg CACHEBUST=$(date +%s) \
-  -t $MYHUBID/${MYIMG}:$TAG
-```
-> NOTE: Updating Stata actually doesn't work.
-
-```
-...
-Removing intermediate container cb12e70b0154
- ---> 52e8f83a14f8
-Successfully built 52e8f83a14f8
-```
-
-List your images:
-
-```
-docker images 
-```
-output:
-```
-REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-<none>              <none>              52e8f83a14f8        25 seconds ago      665MB
-<none>              <none>              fb095c3f9ade        31 minutes ago      670MB
-<none>              <none>              a919483dbe22        34 minutes ago      107MB
-```
-
-## Publish the image 
-
-The resulting docker image can be uploaded to [Docker Hub](https://hub.docker.com/), if desired, or any other of the container registries. 
-
-
-```
-docker push $MYHUBID/${MYIMG}:$TAG
-```
-
-We can browse the provided images at [https://hub.docker.com/u/dataeditors](https://hub.docker.com/u/dataeditors):
-
-![Screenshot of repository for dataeditors](assets/docker-hub-dataeditors.png)
 
 ## Using the image
 
