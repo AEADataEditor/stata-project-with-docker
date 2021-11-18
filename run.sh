@@ -9,7 +9,7 @@ STATALIC=$(readlink -m $1)
 
 DOCKEROPTS="-it --rm"
 # When we are on Github Actions
-[[ -z $CI ]] || DOCKEROPTS="--rm"
+[[ $CI ]] && DOCKEROPTS="--rm"
 
 if [[ ! -f $STATALIC ]] 
 then
