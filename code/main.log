@@ -25,6 +25,9 @@ Notes:
 
 . /* main.do */
 . /* Author: Lars Vilhuber */
+. /* NOTE: this is a VERY simple example file
+>          it does NOT fully comply with best practices
+> */
 . 
 . global BASEDIR "/" /* <--- adjust as necessary */
 
@@ -62,6 +65,17 @@ foreign         byte    %8.0g      origin     Car origin
 -------------------------------------------------------------------------------
 Sorted by: foreign
 
+. 
+. /* we list the ado files - by default, it should list 'estout' 
+>    that we installed via the setup.do during the build phase
+>    of the Docker image */
+. 
+. ado
+
+[1] package estout from http://fmwww.bc.edu/repec/bocode/e
+      'ESTOUT': module to make regression tables
+
+. 
 . 
 . 
 . 
