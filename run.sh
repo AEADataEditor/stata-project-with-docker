@@ -7,7 +7,6 @@ then
 fi
 STATALIC=$(readlink -m $1)
 
-
 if [[ ! -f $STATALIC ]] 
 then
   echo "You specified $STATALIC - that is not a file"
@@ -32,10 +31,29 @@ echo "================================"
 echo "Running docker:"
 set -ev
 
-time docker run -it --rm \
+# When we are on Github Actions
+if [[ $CI ]] 
+then
+   DOCKEROPTS="--rm"
+   DOCKERIMG=$(echo $GITHUB_REPOSITORY | tr [A-Z] [a-z])
+   TAG=latest
+else
+   DOCKEROPTS="-it --rm"
+   source .versions
+   DOCKERIMG=$MYHUBID/$MYIMG
+fi
+
+# ensure that the directories are writable by Docker
+chmod a+rwX code code/*
+chmod a+rwX data 
+
+# run the docker and the Stata file
+# note that the working directory will be set to '/code' by default
+
+time docker run $DOCKEROPTS \
   -v ${STATALIC}:/usr/local/stata/stata.lic \
   -v $(pwd)/code:/code \
   -v $(pwd)/data:/data \
-  $MYHUBID/$MYIMG:$TAG -b main.do
+  $DOCKERIMG:$TAG -b main.do
 
 

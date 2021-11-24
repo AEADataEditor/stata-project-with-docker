@@ -1,15 +1,21 @@
 # Creating a Stata project with automated Docker builds
 
-[![Build docker image](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/ci.yml/badge.svg)](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/ci.yml)
+[![Build docker image](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/build.yml/badge.svg)](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/build.yml)[![Compute analysis](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/compute.yml/badge.svg)](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/compute.yml)
 
 ## Purpose
 
+<<<<<<< HEAD
 This repository serves as a demonstration and a template on how to use Docker together with Stata to 
 
 a) encapsulate a project's computing for reliability and reproducibility and 
 b) (optionally) leverage cloud resources to test that functionality every time a piece of code changes.
 
 These short instructions should get you up and running fairly quickly.
+=======
+This is a demonstration of using Stata, using Docker to robustly encapsulate the Stata environment, and using Github Actions to automatically run everything - the Docker build as well as the actual analysis.
+
+You can also use a Github Action, for instance [labordynamicsinstitute/continuous-integration-stata](https://github.com/labordynamicsinstitute/continuous-integration-stata) or [ledwindra/continuous-integration-stata](https://github.com/ledwindra/continuous-integration-stata), they are different ways of achieving the same thing: continuously checking that your Stata-based analysis works.
+>>>>>>> refs/remotes/origin/main
 
 ## Requirements
 
@@ -37,19 +43,29 @@ gh secret set STATA_LIC_BASE64 -b"$(cat stata.lic | base64)" -v all -o YOURORG
 where `stata.lic` is your Stata license file, and `YOURORG` is your organization (can be dropped if running in your personal account).
 
 
+<<<<<<< HEAD
 ## Steps
 
 1. [ ] You should copy this template to your own personal space. You can do this in several ways:
    - Best way: Use the "[Use this template](https://github.com/AEADataEditor/stata-project-with-docker/generate)" button on the [main Github page for this project](https://github.com/AEADataEditor/stata-project-with-docker/). 
    - Good: [Fork the Github repository](https://github.com/AEADataEditor/stata-project-with-docker) by clicking on **Fork** in the top-right corner.
    - OK: [Download](https://github.com/AEADataEditor/stata-project-with-docker/archive/refs/heads/main.zip) this project and expand on your computer.
+=======
+## Dockerfile
+>>>>>>> refs/remotes/origin/main
 
 2. [ ] Adjust the `Dockerfile`
 3. [ ] Adjust the `setup.do` file
 4. [ ] Build the Docker image
 5. [ ] Run the Docker image
 
+<<<<<<< HEAD
 If you want to leverage the cloud functionality,
+=======
+- The container will be based on a pre-configured Stata Docker image maintained at [Data Editors' Docker Hub](https://hub.docker.com/u/dataeditors). If you have your own favorite image, please feel free to adapt to use it.
+- The build process will integrate all ado-file installs, using the `setup.do` file. You should NOT call `setup.do` during regular processing, all ado files should already be installed (and therefore version-locked).
+- Because of this, you already **need the Stata license** during the build process. There's a convoluted part of the Dockerfile where the Stata license is pulled in, used, and then deleted: this is to ensure that you do not accidentally post your Stata license!
+>>>>>>> refs/remotes/origin/main
 
 6. [ ] Upload the image to Docker Hub
 7. [ ] Sync your code with your Github repository (which you created in Step 1, by using the template or forking)

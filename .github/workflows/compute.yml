@@ -1,0 +1,40 @@
+name: Compute analysis
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  compute:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      # Workaround - we create a local license file
+      - name: Create license
+        run: |
+            echo "${{ secrets.STATA_LIC_BASE64 }}" | base64 -d > stata.lic 
+            ls -l stata.lic
+      # we want a lower-case version of the repo name
+      - name: Sanitize repo slug
+        uses: actions/github-script@v4
+        id: repo_slug
+        with:
+          result-encoding: string
+          script: return '${{ github.repository }}'.toLowerCase()
+      # Compute the main result, re-using the run.sh script
+      -  name: Compute
+         run: "bash -x ./run.sh ./stata.lic"
+      # send it to the results branch
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3.8.0
+        with:
+           github_token: ${{ secrets.GITHUB_TOKEN }}
+           publish_dir: .
+           user_name: 'Github Action Bot'
+           user_email: 'lars.vilhuber@cornell.edu'
+           publish_branch: results 
+           keep_files: true
