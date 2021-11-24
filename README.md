@@ -4,18 +4,12 @@
 
 ## Purpose
 
-<<<<<<< HEAD
 This repository serves as a demonstration and a template on how to use Docker together with Stata to 
 
 a) encapsulate a project's computing for reliability and reproducibility and 
 b) (optionally) leverage cloud resources to test that functionality every time a piece of code changes.
 
 These short instructions should get you up and running fairly quickly.
-=======
-This is a demonstration of using Stata, using Docker to robustly encapsulate the Stata environment, and using Github Actions to automatically run everything - the Docker build as well as the actual analysis.
-
-You can also use a Github Action, for instance [labordynamicsinstitute/continuous-integration-stata](https://github.com/labordynamicsinstitute/continuous-integration-stata) or [ledwindra/continuous-integration-stata](https://github.com/ledwindra/continuous-integration-stata), they are different ways of achieving the same thing: continuously checking that your Stata-based analysis works.
->>>>>>> refs/remotes/origin/main
 
 ## Requirements
 
@@ -43,35 +37,28 @@ gh secret set STATA_LIC_BASE64 -b"$(cat stata.lic | base64)" -v all -o YOURORG
 where `stata.lic` is your Stata license file, and `YOURORG` is your organization (can be dropped if running in your personal account).
 
 
-<<<<<<< HEAD
 ## Steps
 
 1. [ ] You should copy this template to your own personal space. You can do this in several ways:
    - Best way: Use the "[Use this template](https://github.com/AEADataEditor/stata-project-with-docker/generate)" button on the [main Github page for this project](https://github.com/AEADataEditor/stata-project-with-docker/). 
    - Good: [Fork the Github repository](https://github.com/AEADataEditor/stata-project-with-docker) by clicking on **Fork** in the top-right corner.
    - OK: [Download](https://github.com/AEADataEditor/stata-project-with-docker/archive/refs/heads/main.zip) this project and expand on your computer.
-=======
-## Dockerfile
->>>>>>> refs/remotes/origin/main
 
 2. [ ] Adjust the `Dockerfile`
 3. [ ] Adjust the `setup.do` file
 4. [ ] Build the Docker image
 5. [ ] Run the Docker image
 
-<<<<<<< HEAD
 If you want to leverage the cloud functionality,
-=======
-- The container will be based on a pre-configured Stata Docker image maintained at [Data Editors' Docker Hub](https://hub.docker.com/u/dataeditors). If you have your own favorite image, please feel free to adapt to use it.
-- The build process will integrate all ado-file installs, using the `setup.do` file. You should NOT call `setup.do` during regular processing, all ado files should already be installed (and therefore version-locked).
-- Because of this, you already **need the Stata license** during the build process. There's a convoluted part of the Dockerfile where the Stata license is pulled in, used, and then deleted: this is to ensure that you do not accidentally post your Stata license!
->>>>>>> refs/remotes/origin/main
 
 6. [ ] Upload the image to Docker Hub
 7. [ ] Sync your code with your Github repository (which you created in Step 1, by using the template or forking)
 8. [ ] Configure your Stata license in the cloud (securely)
 9. [ ] Verify that the code runs in the cloud
 
+If you want to go the extra step
+
+10. [ ] Setup building the Docker image in the cloud
 
 ## Details
 
@@ -165,18 +152,10 @@ To run the image,  the license needs to be available to the Github Action as `ST
 
 where `stata.lic` is your Stata license file, and `YOURORG` is your organization (can be dropped if running in your personal account).
 
-We will need two additional such "secrets":
-
-```
-DOCKERHUB_USERNAME
-DOCKERHUB_TOKEN
-```
-
-See [the Docker Hub documentation](https://docs.docker.com/docker-hub/access-tokens/) on how to generate the latter.
 
 ### Publish the image 
 
-In order to run this in the cloud, the "cloud" needs to be able to access the image you just created. You thus need to upload it to [Docker Hub](https://hub.docker.com/)
+In order to run this in the cloud, the "cloud" needs to be able to access the image you just created. You thus need to upload it to [Docker Hub](https://hub.docker.com/). You may need to login to do this.
 
 
 ```
@@ -198,7 +177,7 @@ Note that this also enables you to use that same image on other computers you ha
 
 ### Getting it to work in the cloud
 
-By default, this template repository has a pre-configured Github Actions workflow, stored in [`.github/workflows/ci.yml`](.github/workflows/ci.yml). There are, again, a few key parameters that can be configured. The first is the `on` parameter, which configures when actions are triggered. In the case of the template file,
+By default, this template repository has a pre-configured Github Actions workflow, stored in [`.github/workflows/compute.yml`](.github/workflows/compute.yml). There are, again, a few key parameters that can be configured. The first is the `on` parameter, which configures when actions are triggered. In the case of the template file,
 
 ```
 on:
@@ -208,5 +187,54 @@ on:
   workflow_dispatch:
 ```
 
-which instructs the Github Action (run Stata on the code) to be triggered either by a commit to the `main` branch, or to be manually triggered, by going to the "Actions" tab in the Github Repository. The latter is helpful for debugging.
+which instructs the Github Action (run Stata on the code) to be triggered either by a commit to the `main` branch, or to be manually triggered, by going to the "Actions" tab in the Github Repository. The latter is very helpful for debugging!
 
+
+
+## Going the extra step
+
+If we can run the Docker image in the cloud, can we also create the Docker image in the cloud? The answer, of course, is yes. 
+
+
+### Configurating Docker builds in the cloud
+
+This is pre-configured in [`.github/workflows/build.yml`](.github/workflows/build.yml). Reviewing this file shows a slightly different trigger:
+
+```
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'Dockerfile'
+  workflow_dispatch: 
+```
+
+Here, only changes to the `Dockerfile` trigger a rebuild. While that may seem reasonable, we might also want to include `setup.do`, or other files that affect the Docker image. However, we can also manually trigger the rebuild in the "Actions" tab.
+
+### Additional secrets
+
+We will need two additional  "secrets", in order to be able to push to the Docker Hub from the cloud.
+
+```
+DOCKERHUB_USERNAME
+DOCKERHUB_TOKEN
+```
+
+See [the Docker Hub documentation](https://docs.docker.com/docker-hub/access-tokens/) on how to generate the latter.
+
+### Running it
+
+The [`.github/workflows/build.yml`](.github/workflows/build.yml) workflow will run through all the necessary steps to publish an image. Note that there's a slight difference in what it does: it will always create a "latest" tag, not a date- or release-specific tag. However, you can always associate a specific tag with the latest version manually. 
+
+### Not running it
+
+If you do not wish to build in the cloud, simply deleting [`.github/workflows/build.yml`](.github/workflows/build.yml) will disable that functionality.
+
+## Conclusion
+
+The ability to conduct "continuous integration" in the cloud with Stata is a powerful tool to ensure that the project is reproducible at any time, and to learn early on when reproducibility is broken. For small projects, this template repository and tutorial is sufficient to get you started. For more complex projects, running it locally based on this template will also ensure reproducibility. 
+
+## Comments
+
+For any comments or suggestions, please [create an issue](https://github.com/AEADataEditor/stata-project-with-docker/issues/new/choose) or contact us on [Twitter as @AeaData](https://twitter.com/AeaData).
