@@ -43,7 +43,7 @@ then
    TAG=latest
 else
    DOCKEROPTS="-it --rm"
-   source .versions
+   source $configfile
    DOCKERIMG=$MYHUBID/$MYIMG
 fi
 

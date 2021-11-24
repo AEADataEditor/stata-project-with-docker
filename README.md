@@ -106,7 +106,7 @@ MYHUBID=larsvilhuber
 MYIMG=projectname
 ```
 
-You may want to adjust the `MYHUBID` and `MYIMG` variables. `MYHUBID` is your login on Docker Hub, and `MYIMG` is the name by which you will refer to this image. A very convenient `MYIMG` name might be the same as the Github repository name, but it can be anything. You can version with today's date (which is what `date +%F` prints out), or anything else.
+You may want to adjust the `MYHUBID` and `MYIMG` variables. `MYHUBID` is your login on Docker Hub, and `MYIMG` is the name by which you will refer to this image. A very convenient `MYIMG` name might be the same as the Github repository name (replace `projectname` with `${PWD##*/}`), but it can be anything. You can version with today's date (which is what `date +%F` prints out), or anything else.
 
 Once you have adjusted the [`init.config.txt`](init.config.txt), you can run [`build.sh`](build.sh) (needs a Stata license file!). This will leverage the existing Stata Docker image, add your project-specific details as specified in the [`Dockerfile`](Dockerfile), install any Stata packages as specified in the setup program, and store the project-specific Docker image locally on your computer. It will also write out the chosen configuration into `config.txt`
 
@@ -118,11 +118,13 @@ You can now use that image to run your project's code.
 The script [`run.sh`](run.sh) will pick up the configuration information in `config.txt`, and run your project inside the container image. Of note:
 
 - you need the Stata license again
-- it maps the `code/` sub-directory in the sample repository into the image as `/code`. Your Stata code will want to take that into account.
-- it also maps the `data/` sub-directory into the image as `/data`. 
+- it maps the `code/` sub-directory in the sample repository into the image as `/code/`. Your Stata code will want to take that into account.
+- it also maps the `data/` sub-directory into the image as `/data/`. 
 - no other subdirectory is available inside the image!
 - The sample code [`code/main.do`](code/main.do) can be used as a template for your own main file. 
-- Your output will appear wherever Stata code writes it to. If you need additional sub-directories availabe in the image, you will need to map them, using additional `-v` lines.
+- Your output will appear wherever Stata code writes it to. If that is within the mapped directories `/data/` and `/code`, it will be preserved once the Docker image is stopped (and deleted).
+- If you need additional sub-directories availabe in the image, you will need to map them, using additional `-v` lines.
+  - For best practice, you might want to map an additional `results` directory, e.g., `-v $(pwd)/results:/results` and instruct your Stata code to write to that. 
 
 ## Cloud functionality
 
@@ -163,8 +165,6 @@ git push
 
 Note that this also enables you to use that same image on other computers you have access to, without rebuilding it: Simply `clone` your Github repository, and run `run.sh`. This will download the image we uploaded in the previous step, and run your code. This might be useful if you are running on a university cluster, or your mother-in-law's laptop during Thanksgiving. However, here we concentrate on the cloud functionality.
 
-
-
 ### Getting it to work in the cloud
 
 By default, this template repository has a pre-configured Github Actions workflow, stored in [`.github/workflows/compute.yml`](.github/workflows/compute.yml). There are, again, a few key parameters that can be configured. The first is the `on` parameter, which configures when actions are triggered. In the case of the template file,
@@ -195,6 +195,8 @@ If you only run the code for testing purposes, you may simply be interested in w
 In this case, once the code has run, the entire repository is pushed back to the "[results](https://github.com/AEADataEditor/stata-project-with-docker/tree/results)" branch. Alternatives consist in building and displaying a web page with results (in which case you might want to use the standard `gh-pages` branch), or actually compiling a LaTeX paper with all the results. 
 
 If you are not interested in the outcomes, then simply deleting those lines is sufficient.
+
+If you want to be really fancy (we are), then you show a badge showing the latest result of the `compute` run: [![Compute analysis](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/compute.yml/badge.svg)](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/compute.yml). 
 
 ## Going the extra step
 
@@ -230,7 +232,8 @@ See [the Docker Hub documentation](https://docs.docker.com/docker-hub/access-tok
 
 ### Running it
 
-The [`.github/workflows/build.yml`](.github/workflows/build.yml) workflow will run through all the necessary steps to publish an image. Note that there's a slight difference in what it does: it will always create a "latest" tag, not a date- or release-specific tag. However, you can always associate a specific tag with the latest version manually. 
+The [`.github/workflows/build.yml`](.github/workflows/build.yml) workflow will run through all the necessary steps to publish an image. Note that there's a slight difference in what it does: it will always create a "latest" tag, not a date- or release-specific tag. However, you can always associate a specific tag with the latest version manually. And because we are really fancy, we also have a badge for that: 
+[![Build docker image](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/build.yml/badge.svg)](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/build.yml).
 
 ### Not running it
 
