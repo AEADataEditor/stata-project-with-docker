@@ -196,7 +196,7 @@ In this case, once the code has run, the entire repository is pushed back to the
 
 If you are not interested in the outcomes, then simply deleting those lines is sufficient.
 
-If you want to be really fancy (we are), then you show a badge showing the latest result of the `compute` run: [![Compute analysis](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/compute.yml/badge.svg)](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/compute.yml). 
+If you want to be really fancy (we are), then you show a badge showing the latest result of the `compute` run (which in our case, demonstrates that this project is reproducible!): [![Compute analysis](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/compute.yml/badge.svg)](https://github.com/AEADataEditor/stata-project-with-docker/actions/workflows/compute.yml). 
 
 ## Going the extra step
 
