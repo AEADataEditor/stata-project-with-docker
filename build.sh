@@ -2,7 +2,7 @@
 
 # reading configuration
 
-source .versions
+source init.config.txt
 
 # for debugging
 BUILDARGS="--progress plain --no-cache"
@@ -34,7 +34,7 @@ then
    # write out final values to config
    [[ -f config ]] && \rm -i config
    echo "# configuration created on $(date +%F_%H:%M)" | tee config
-   for name in $(grep -Ev '^#' .versions| awk -F= ' { print $1 } ')
+   for name in $(grep -Ev '^#' init.config.txt| awk -F= ' { print $1 } ')
    do 
       echo ${name}=${!name} >> config
    done

@@ -14,11 +14,11 @@ then
 	exit 2
 fi
 
-if [[ -f config ]]
+if [[ -f config.txt ]]
 then 
-   configfile=config
+   configfile=config.txt
 else 
-   configfile=.versions
+   configfile=init.config.txt
 fi
 
 echo "================================"

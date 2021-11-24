@@ -4,11 +4,31 @@
 
 ## Purpose
 
-Coming
+This repository serves as a demonstration and a template on how to use Docker together with Stata to 
+
+a) encapsulate a project's computing for reliability and reproducibility and 
+b) (optionally) leverage cloud resources to test that functionality every time a piece of code changes.
+
+These short instructions should get you up and running fairly quickly.
 
 ## Requirements
 
-You need a Stata license to run the image, and the license needs to be available to the Github Action as `STATA_LIC_BASE64` in "base64" format. From a Linux/macOS command line, you could generate it like this:
+You will need 
+
+- [ ] Stata license file `stata.lic`. You will find this in your local Stata install directory.
+
+To run this locally on your computer, you will need
+
+- [ ] [Docker](https://docs.docker.com/get-docker/) or [Singularity](https://github.com/sylabs/singularity/releases). 
+
+To run this in the cloud, you will need
+
+- [ ] A Github account, if you want to use the cloud functionality explained here as-is. Other methods do exist.
+- [ ] A Docker Hub account, to store the image. Other "image registries" exist and can be used, but are not covered in these instructions.
+
+## Preliminary s
+
+to run the image, and the license needs to be available to the Github Action as `STATA_LIC_BASE64` in "base64" format. From a Linux/macOS command line, you could generate it like this:
 
 ```bash
 gh secret set STATA_LIC_BASE64 -b"$(cat stata.lic | base64)" -v all -o YOURORG
@@ -17,182 +37,160 @@ gh secret set STATA_LIC_BASE64 -b"$(cat stata.lic | base64)" -v all -o YOURORG
 where `stata.lic` is your Stata license file, and `YOURORG` is your organization (can be dropped if running in your personal account).
 
 
+## Steps
 
-## Dockerfile
+1. [ ] You should copy this template to your own personal space. You can do this in several ways:
+   - Best way: Use the "[Use this template](https://github.com/AEADataEditor/stata-project-with-docker/generate)" button on the [main Github page for this project](https://github.com/AEADataEditor/stata-project-with-docker/). 
+   - Good: [Fork the Github repository](https://github.com/AEADataEditor/stata-project-with-docker) by clicking on **Fork** in the top-right corner.
+   - OK: [Download](https://github.com/AEADataEditor/stata-project-with-docker/archive/refs/heads/main.zip) this project and expand on your computer.
+
+2. [ ] Adjust the `Dockerfile`
+3. [ ] Adjust the `setup.do` file
+4. [ ] Build the Docker image
+5. [ ] Run the Docker image
+
+If you want to leverage the cloud functionality,
+
+6. [ ] Upload the image to Docker Hub
+7. [ ] Sync your code with your Github repository (which you created in Step 1, by using the template or forking)
+8. [ ] Configure your Stata license in the cloud (securely)
+9. [ ] Verify that the code runs in the cloud
+
+
+## Details
+
+### Adjust the Dockerfile
 
 The [Dockerfile](Dockerfile) contains the build instructions. A few things of note:
 
-(NEED TO FINISH THIS)
+You may want to adjust the following lines to the Stata version of your choice. For released versions and "tags", see [https://hub.docker.com/u/dataeditors](https://hub.docker.com/u/dataeditors). 
+```
+ARG SRCVERSION=17
+ARG SRCTAG=2021-10-13
+ARG SRCHUBID=dataeditors
+```
 
-## Build
-
-### Set up a few things
-
-Set the `TAG` and `IMAGEID` accordingly. `VERSION` should be the Stata version.
+If you already have a setup file that installs all of your Stata packages, you do not need to rename it, simply change the following line:
 
 ```
-VERSION=17
-TAG=$(date +%F)
-MYHUBID=dataeditors
-MYIMG=stata${VERSION}
+COPY setup.do /setup.do
+```
+
+to read
+
+```
+COPY your_fancy_name.do /setup.do
+```
+
+If your file name has spaces (not a good idea), you may need to quote the first part (YMMV).
+
+### Adjust the setup.do file
+
+The template repository contains a `setup.do` as an example. It should include all commands that are required to be run for "setting up" the project on a brand new system. In particular, it should install all needed Stata packages. For additional sample commands, see [https://github.com/gslab-econ/template/blob/master/config/config_stata.do](https://github.com/gslab-econ/template/blob/master/config/config_stata.do).
+
+```
+    local ssc_packages "estout"
+
+    // local ssc_packages "estout boottest"
+    
+    if !missing("`ssc_packages'") {
+        foreach pkg in `ssc_packages' {
+            dis "Installing `pkg'"
+            ssc install `pkg', replace
+        }
+    }
 ```
 
 ### Build the image
 
-The Dockerfile relies on BuildKit syntax, for passing the license information.
-Use the following if you just want to rebuild the Docker image (will re-use key cached information):
+By default, the build process is documented in [`build.sh`](build.sh) and works on Linux and macOS, but all commands can be run individually as well. You should edit the contents of the [`init.config.txt`](init.config.txt):
 
 ```
-DOCKER_BUILDKIT=1 docker build  . \
-  --secret id=statalic,src=stata.lic.${VERSION} \
-  -t $MYHUBID/${MYIMG}:$TAG
+VERSION=17
+# the TAG can be anything, but could be today's date
+TAG=$(date +%F) 
+MYHUBID=larsvilhuber
+MYIMG=projectname
 ```
 
-or, if updating Stata, use the following, which will force an update through Stata:
+You may want to adjust the `MYHUBID` and `MYIMG` variables. `MYHUBID` is your login on Docker Hub, and `MYIMG` is the name by which you will refer to this image. A very convenient `MYIMG` name might be the same as the Github repository name, but it can be anything. You can version with today's date (which is what `date +%F` prints out), or anything else.
 
-```
-DOCKER_BUILDKIT=1 docker build  . \
-  --secret id=statalic,src=stata.lic.${VERSION} \
-  --build-arg CACHEBUST=$(date +%s) \
-  -t $MYHUBID/${MYIMG}:$TAG
-```
-> NOTE: Updating Stata actually doesn't work.
+Once you have adjusted the [`init.config.txt`](init.config.txt), you can run [`build.sh`](build.sh) (needs a Stata license file!). This will leverage the existing Stata Docker image, add your project-specific details as specified in the [`Dockerfile`](Dockerfile), install any Stata packages as specified in the setup program, and store the project-specific Docker image locally on your computer. It will also write out the chosen configuration into `config.txt`
 
-```
-...
-Removing intermediate container cb12e70b0154
- ---> 52e8f83a14f8
-Successfully built 52e8f83a14f8
-```
-
-List your images:
-
-```
-docker images 
-```
-output:
-```
-REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-<none>              <none>              52e8f83a14f8        25 seconds ago      665MB
-<none>              <none>              fb095c3f9ade        31 minutes ago      670MB
-<none>              <none>              a919483dbe22        34 minutes ago      107MB
-```
-
-## Publish the image 
-
-The resulting docker image can be uploaded to [Docker Hub](https://hub.docker.com/), if desired, or any other of the container registries. 
+You can now use that image to run your project's code.
 
 
+### Run the image
+
+The script [`run.sh`](run.sh) will pick up the configuration information in `config.txt`, and run your project inside the container image. Of note:
+
+- you need the Stata license again
+- it maps the `code/` sub-directory in the sample repository into the image as `/code`. Your Stata code will want to take that into account.
+- it also maps the `data/` sub-directory into the image as `/data`. 
+- no other subdirectory is available inside the image!
+- The sample code [`code/main.do`](code/main.do) can be used as a template for your own main file. 
+- Your output will appear wherever Stata code writes it to. If you need additional sub-directories availabe in the image, you will need to map them, using additional `-v` lines.
+
+## Cloud functionality
+
+Once you have ascertained that everything is working fine, you can let the cloud run the Docker image in the future. Note that this assumes that all data can be either downloaded on the fly, or is available in the `data/` directory within Github (only recommended for quite small data). There are other ways of accessing large quantities of data (Git LFS, downloading from the internet, leveraging Dropbox, Box, or Google Drive), but those are beyond the scope for these instructions. 
+
+To run code in the cloud, we will leverage a Github functionality called "[Github Actions](https://docs.github.com/en/actions/quickstart)". Similar systems elsewhere might be called "pipelines", "workflows", etc. The terminology below is focused on Github Actions, but generically, this can work on any one of those systems.
+
+### Setting up Github Actions and Configure the Stata license in the cloud
+
+Your Stata license is valuable, and should not be posted to Github! However, we need it there in order to run the Docker image. Github and other cloud providers have the ability to store "secure" environment variables, that are made available to their systems. Github calls these "[secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)" because, well, they are meant to remain secret. However, secrets are text, not files. So we need a workaround to store our Stata license as a file in the cloud. You will need a Bash shell for the following step. You can either do it from the command line, using the [`gh` command line tool](https://github.com/cli/cli), or generate the text, and copy and paste it in the web interface, as described [here](https://docs.github.com/en/actions/security-guides/encrypted-secrets).
+
+To run the image,  the license needs to be available to the Github Action as `STATA_LIC_BASE64` in "base64" format. From a Linux/macOS command line, you can generate it like this:
+ 
+```bash
+ gh secret set STATA_LIC_BASE64 -b"$(cat stata.lic | base64)" -v all -o YOURORG
 ```
+
+where `stata.lic` is your Stata license file, and `YOURORG` is your organization (can be dropped if running in your personal account).
+
+We will need two additional such "secrets":
+
+```
+DOCKERHUB_USERNAME
+DOCKERHUB_TOKEN
+```
+
+See [the Docker Hub documentation](https://docs.docker.com/docker-hub/access-tokens/) on how to generate the latter.
+
+### Publish the image 
+
+In order to run this in the cloud, the "cloud" needs to be able to access the image you just created. You thus need to upload it to [Docker Hub](https://hub.docker.com/)
+
+
+```
+source config.txt
 docker push $MYHUBID/${MYIMG}:$TAG
 ```
 
-We can browse the provided images at [https://hub.docker.com/u/dataeditors](https://hub.docker.com/u/dataeditors):
+### Sync your Git repository
 
-![Screenshot of repository for dataeditors](assets/docker-hub-dataeditors.png)
-
-## Using the image
-
-Using a pre-built image on [Docker Hub](https://hub.docker.com/u/dataeditors) to run a program. 
-
-> NOTE: because Stata is proprietary software, we need to mount a license file. 
-
-> NOTE: We are using a working directory of "/code" here - check the [Dockerfile](Dockerfile) for the precise location.
-
-
-For all the subsequent `docker run` commands, we will use similar environment variables:
+We assume you created a Git repository. If not, do it now! Assuming you have committed all files (in particular, `config.txt`, `run.sh`, and all your Stata code), you should push it to your Github repository:
 
 ```
-VERSION=17
-TAG=2021-06-09
-MYHUBID=dataeditors
-MYIMG=stata${VERSION}
-STATALIC=$HOME/licenses/stata.lic.$VERSION
+git push
 ```
 
-or
+Note that this also enables you to use that same image on other computers you have access to, without rebuilding it: Simply `clone` your Github repository, and run `run.sh`. This will download the image we uploaded in the previous step, and run your code. This might be useful if you are running on a university cluster, or your mother-in-law's laptop during Thanksgiving. However, here we concentrate on the cloud functionality.
+
+
+
+### Getting it to work in the cloud
+
+By default, this template repository has a pre-configured Github Actions workflow, stored in [`.github/workflows/ci.yml`](.github/workflows/ci.yml). There are, again, a few key parameters that can be configured. The first is the `on` parameter, which configures when actions are triggered. In the case of the template file,
 
 ```
-VERSION=17
-TAG=2021-06-09
-MYHUBID=dataeditors
-MYIMG=stata${VERSION}
-STATALIC=$(find $HOME/Dropbox/ -name stata.lic.$VERSION)
+on:
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch:
 ```
 
-### To enter interactive stata
+which instructs the Github Action (run Stata on the code) to be triggered either by a commit to the `main` branch, or to be manually triggered, by going to the "Actions" tab in the Github Repository. The latter is helpful for debugging.
 
-```
-docker run -it --rm \
-  -v ${STATALIC}:/usr/local/stata/stata.lic \
-  -v $(pwd)/code:/code \
-  -v $(pwd)/data:/data \
-  -v $(pwd)/results:/results \
-  $MYHUBID/${MYIMG}:${TAG}
-```
-
-### Aside: Using other container management software
-
-The above builds and runs the container using Docker. While there is a free Community Edition of Docker, others may prefer to use one of the other container management software, such as [Podman](https://podman.io/) or [Singularity](https://sylabs.io/guides/latest/user-guide/). For instance, in Singularity, the following works:
-
-```
-singularity run  \
-  -B ${STATALIC}/stata.lic.${VERSION}:/usr/local/stata/stata.lic \
-  -B $(pwd)/code:/code \
-  -B $(pwd)/data:/data \
-  -B $(pwd)/results:/results \
-  docker://$MYHUBID/${MYIMG}:${TAG}
-```
-
-### Running a program
-
-The docker image has a `ENTRYPOINT` defined, which means it will act as if you were running Stata:
-
-
-```
-docker run -it --rm \
-  -v ${STATALIC}/stata.lic.${VERSION}:/usr/local/stata/stata.lic \
-  -v $(pwd)/code:/code \
-  -v $(pwd)/data:/data \
-  -v $(pwd)/results:/results \
-  $MYHUBID/${MYIMG} -b program.do
-```
-Your program, of course, should reference the `/data` and `/results` directories:
-
-```
-global basedir "/"
-global data "${basedir}data"
-global results "${basedir}results"
-// use "${data}/mydata.dta"
-// graph export "${results}/figure1.png"
-```
-
-### Using the container to build a project-specific docker image
-
-- Adjust the `setup.do` file - list all packages you want installed permanently. 
-- Remember to have the `stata.lic.17` file available
-- Start your Dockerfile with (adjust the tag)
-
-```
-# syntax=docker/dockerfile:1.2
-FROM dataeditors/stata17:2021-06-09
-# this runs your code 
-COPY code/* /code/
-COPY data/* /data/
-RUN --mount=type=secret,id=statalic,dst=/usr/local/stata/stata.lic /usr/local/stata/stata-mp do /code/setup.do
-
-USER statauser:stata
-# run the master file
-ENTRYPOINT ["stata-mp","/code/master.do"]
-```
-
-build, and then run this Docker image with
-
-```
-docker run --secret id=statalic,src=stata.lic.${VERSION} \
-  -v $(pwd)/results:/results  \
-  larsvilhuber/greatpaper:2021-06-08
-```
-and the results of running the code (in `code`) on the data (in `data`) will show up in the `results` folder which is local to your workstation.
-
-## NOTE
