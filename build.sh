@@ -2,7 +2,17 @@
 
 # reading configuration
 
-source init.config.txt
+
+# if we are on Github Actions
+if [[ $CI ]] 
+then
+   DOCKERIMG=$(echo $GITHUB_REPOSITORY | tr [A-Z] [a-z])
+   TAG=latest
+else
+   source init.config.txt
+   DOCKERIMG=$MYHUBID/$MYIMG
+fi
+
 
 # for debugging
 BUILDARGS="--progress plain --no-cache"
@@ -27,7 +37,7 @@ DOCKER_BUILDKIT=1 docker build \
   $BUILDARGS \
   . \
   --secret id=statalic,src=$STATALIC \
-  -t $MYHUBID/${MYIMG}:$TAG
+  -t ${DOCKERIMG}:$TAG
 
 if [[ $? == 0 ]]
 then

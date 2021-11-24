@@ -6,6 +6,9 @@ on:
       - 'main'
     paths:
       - 'Dockerfile'
+      - 'build.sh'
+      - 'build.yml'
+      - 'setup.do'
   workflow_dispatch:
 
 jobs:
