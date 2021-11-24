@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# reading configuration
+
 source .versions
 
 # for debugging
@@ -26,3 +28,18 @@ DOCKER_BUILDKIT=1 docker build \
   . \
   --secret id=statalic,src=$STATALIC \
   -t $MYHUBID/${MYIMG}:$TAG
+
+if [[ $? == 0 ]]
+then
+   # write out final values to config
+   [[ -f config ]] && \rm -i config
+   echo "# configuration created on $(date +%F_%H:%M)" | tee config
+   for name in $(grep -Ev '^#' .versions| awk -F= ' { print $1 } ')
+   do 
+      echo ${name}=${!name} >> config
+   done
+fi
+
+      
+      
+   

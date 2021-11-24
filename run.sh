@@ -14,11 +14,28 @@ then
 	exit 2
 fi
 
-source .versions
+if [[ -f config ]]
+then 
+   configfile=config
+else 
+   configfile=.versions
+fi
 
-docker run -it --rm \
+echo "================================"
+echo "Pulling defaults from ${configfile}:"
+cat $configfile
+echo "--------------------------------"
+
+source $configfile
+
+echo "================================"
+echo "Running docker:"
+set -ev
+
+time docker run -it --rm \
   -v ${STATALIC}:/usr/local/stata/stata.lic \
   -v $(pwd)/code:/code \
   -v $(pwd)/data:/data \
   $MYHUBID/$MYIMG:$TAG -b main.do
+
 
