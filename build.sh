@@ -1,6 +1,8 @@
 #!/bin/bash
 
-source .versions
+# reading configuration
+
+source init.config.txt
 
 # for debugging
 BUILDARGS="--progress plain --no-cache"
@@ -26,3 +28,18 @@ DOCKER_BUILDKIT=1 docker build \
   . \
   --secret id=statalic,src=$STATALIC \
   -t $MYHUBID/${MYIMG}:$TAG
+
+if [[ $? == 0 ]]
+then
+   # write out final values to config
+   [[ -f config ]] && \rm -i config
+   echo "# configuration created on $(date +%F_%H:%M)" | tee config
+   for name in $(grep -Ev '^#' init.config.txt| awk -F= ' { print $1 } ')
+   do 
+      echo ${name}=${!name} >> config
+   done
+fi
+
+      
+      
+   

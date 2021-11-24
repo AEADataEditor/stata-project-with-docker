@@ -1,0 +1,5 @@
+VERSION=17
+# the TAG can be anything, but could be today's date
+TAG=$(date +%F) 
+MYHUBID=larsvilhuber
+MYIMG=projectname
