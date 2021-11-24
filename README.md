@@ -26,16 +26,6 @@ To run this in the cloud, you will need
 - [ ] A Github account, if you want to use the cloud functionality explained here as-is. Other methods do exist.
 - [ ] A Docker Hub account, to store the image. Other "image registries" exist and can be used, but are not covered in these instructions.
 
-## Preliminary s
-
-to run the image, and the license needs to be available to the Github Action as `STATA_LIC_BASE64` in "base64" format. From a Linux/macOS command line, you could generate it like this:
-
-```bash
-gh secret set STATA_LIC_BASE64 -b"$(cat stata.lic | base64)" -v all -o YOURORG
-```
-
-where `stata.lic` is your Stata license file, and `YOURORG` is your organization (can be dropped if running in your personal account).
-
 
 ## Steps
 
@@ -189,7 +179,22 @@ on:
 
 which instructs the Github Action (run Stata on the code) to be triggered either by a commit to the `main` branch, or to be manually triggered, by going to the "Actions" tab in the Github Repository. The latter is very helpful for debugging!
 
+### Results
 
+If you only run the code for testing purposes, you may simply be interested in whether or not the tests run successfully, and not in the outputs per se. However, if you wish to use this to actually run your code and retain meaningful results, then the last part of the [`.github/workflows/compute.yml`](.github/workflows/compute.yml) is relevant:
+
+```
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3.8.0
+        with:
+           github_token: ${{ secrets.GITHUB_TOKEN }}
+           publish_dir: .
+           publish_branch: results 
+           keep_files: true
+```
+In this case, once the code has run, the entire repository is pushed back to the "[results](https://github.com/AEADataEditor/stata-project-with-docker/tree/results)" branch. Alternatives consist in building and displaying a web page with results (in which case you might want to use the standard `gh-pages` branch), or actually compiling a LaTeX paper with all the results. 
+
+If you are not interested in the outcomes, then simply deleting those lines is sufficient.
 
 ## Going the extra step
 
