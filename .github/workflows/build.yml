@@ -23,6 +23,7 @@ jobs:
         run: |
             echo "${{ secrets.STATA_LIC_BASE64 }}" | base64 -d > stata.lic 
             ls -l stata.lic
+            rm config.txt
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
