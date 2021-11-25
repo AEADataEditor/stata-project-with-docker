@@ -239,6 +239,10 @@ The [`.github/workflows/build.yml`](.github/workflows/build.yml) workflow will r
 
 If you do not wish to build in the cloud, simply deleting [`.github/workflows/build.yml`](.github/workflows/build.yml) will disable that functionality.
 
+## Other options
+
+We have described how to do this in a fairly general way. However, other methods to accomplish the same goal exist. Interested parties should check out the [ledwindra](https://github.com/ledwindra/continuous-integration-stata) and [labordynamicsinstitute](https://github.com/labordynamicsinstitute/continuous-integration-stata) versions of a pre-configured "Github Action" that does not require the license file, but instead requires the license information (several more secrets to configure). If "continuous integration" is not a concern but a cloud-based Stata+Docker setup is of interest, both [CodeOcean](https://codeocean.com) and (soon) [WholeTale](https://wholetale.org) offer such functionality.
+
 ## Conclusion
 
 The ability to conduct "continuous integration" in the cloud with Stata is a powerful tool to ensure that the project is reproducible at any time, and to learn early on when reproducibility is broken. For small projects, this template repository and tutorial is sufficient to get you started. For more complex projects, running it locally based on this template will also ensure reproducibility. 
