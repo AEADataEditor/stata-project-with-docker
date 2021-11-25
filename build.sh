@@ -42,11 +42,11 @@ DOCKER_BUILDKIT=1 docker build \
 if [[ $? == 0 ]]
 then
    # write out final values to config
-   [[ -f config ]] && \rm -i config
-   echo "# configuration created on $(date +%F_%H:%M)" | tee config
+   [[ -f config.txt ]] && \rm -i config.txt
+   echo "# configuration created on $(date +%F_%H:%M)" | tee config.txt
    for name in $(grep -Ev '^#' init.config.txt| awk -F= ' { print $1 } ')
    do 
-      echo ${name}=${!name} >> config
+      echo ${name}=${!name} >> config.txt
    done
 fi
 

@@ -1,0 +1,5 @@
+# configuration created on 2021-11-25_11:15
+VERSION=17
+TAG=2021-11-25
+MYHUBID=larsvilhuber
+MYIMG=projectname
