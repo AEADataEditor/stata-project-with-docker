@@ -45,7 +45,7 @@ logfile=${file%*.do}.log
 # run the docker and the Stata file
 # note that the working directory will be set to '/code' by default
 
-docker run $DOCKEROPTS \
+time docker run $DOCKEROPTS \
   -v ${STATALIC}:/usr/local/stata/stata.lic \
   -v $(pwd)/${codedir}:/code \
   -v $(pwd)/data:/data \
