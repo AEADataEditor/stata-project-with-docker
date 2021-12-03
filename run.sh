@@ -1,18 +1,3 @@
-#!/bin/bash
-
-if [[ -z $1 ]]
-then
-  echo "You need to specify the name of Stata license file as an argument"
-  exit 2
-fi
-STATALIC=$(readlink -m $1)
-
-if [[ ! -f $STATALIC ]] 
-then
-  echo "You specified $STATALIC - that is not a file"
-	exit 2
-fi
-
 if [[ -f config.txt ]]
 then 
    configfile=config.txt
@@ -43,6 +28,7 @@ then
    TAG=latest
 else
    DOCKEROPTS="-it --rm"
+   source init.config.txt
    source $configfile
    DOCKERIMG=$MYHUBID/$MYIMG
 fi
@@ -59,7 +45,7 @@ logfile=${file%*.do}.log
 # run the docker and the Stata file
 # note that the working directory will be set to '/code' by default
 
-time docker run $DOCKEROPTS \
+docker run $DOCKEROPTS \
   -v ${STATALIC}:/usr/local/stata/stata.lic \
   -v $(pwd)/${codedir}:/code \
   -v $(pwd)/data:/data \
