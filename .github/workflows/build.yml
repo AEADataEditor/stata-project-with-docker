@@ -33,7 +33,7 @@ jobs:
         id: repo_slug
         with:
           result-encoding: string
-          script: return '${{ github.repository }}'.toLowerCase()
+          script: return '${{ context.repo.repo }}'.toLowerCase()
 
       -
         name: Login to DockerHub
