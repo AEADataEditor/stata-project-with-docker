@@ -14,6 +14,11 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    env:
+      # This needs to be adapted to your own PROJECT!!
+      # It may not correspond to your Docker login
+      # DOCKER_PROJECT: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKER_PROJECT: aeadataeditor
     steps:
       -
         name: Checkout
@@ -33,7 +38,7 @@ jobs:
         id: repo_slug
         with:
           result-encoding: string
-          script: return '${{ github.repository }}'.toLowerCase()
+          script: return '${{ github.event.repository.name }}'.toLowerCase()
 
       -
         name: Login to DockerHub
@@ -47,6 +52,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.repo_slug.outputs.result }}:latest
+          tags: ${{ env.DOCKER_PROJECT }}/${{ steps.repo_slug.outputs.result }}:latest
           secret-files: |
              "statalic=./stata.lic"

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.2
 ARG SRCVERSION=17
-ARG SRCTAG=2021-10-13
+ARG SRCTAG=2022-01-17
 ARG SRCHUBID=dataeditors
 
 FROM ${SRCHUBID}/stata${SRCVERSION}:${SRCTAG}
