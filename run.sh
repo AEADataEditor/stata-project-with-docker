@@ -1,18 +1,3 @@
-#!/bin/bash
-
-if [[ -z $1 ]]
-then
-  echo "You need to specify the name of Stata license file as an argument"
-  exit 2
-fi
-STATALIC=$(readlink -m $1)
-
-if [[ ! -f $STATALIC ]] 
-then
-  echo "You specified $STATALIC - that is not a file"
-	exit 2
-fi
-
 if [[ -f config.txt ]]
 then 
    configfile=config.txt
@@ -43,7 +28,6 @@ then
    TAG=latest
 else
    DOCKEROPTS="-it --rm"
-   source $configfile
    DOCKERIMG=$MYHUBID/$MYIMG
 fi
 

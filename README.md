@@ -15,7 +15,7 @@ These short instructions should get you up and running fairly quickly.
 
 You will need 
 
-- [ ] Stata license file `stata.lic`. You will find this in your local Stata install directory.
+- [ ] A Stata license file `stata.lic`. You will find this in your local Stata install directory.
 
 To run this locally on your computer, you will need
 
@@ -29,17 +29,18 @@ To run this in the cloud, you will need
 
 ## Steps
 
+### Creating an image locally
+
 1. [ ] You should copy this template to your own personal space. You can do this in several ways:
-   - Best way: Use the "[Use this template](https://github.com/AEADataEditor/stata-project-with-docker/generate)" button on the [main Github page for this project](https://github.com/AEADataEditor/stata-project-with-docker/). 
-   - Good: [Fork the Github repository](https://github.com/AEADataEditor/stata-project-with-docker) by clicking on **Fork** in the top-right corner.
-   - OK: [Download](https://github.com/AEADataEditor/stata-project-with-docker/archive/refs/heads/main.zip) this project and expand on your computer.
+   - Best way: Use the "[Use this template](https://github.com/AEADataEditor/stata-project-with-docker/generate)" button on the [main Github page for this project](https://github.com/AEADataEditor/stata-project-with-docker/). Then clone your version of this repository to your local machine and navigate to the folder where it was saved.
+   - Good: [Fork the Github repository](https://github.com/AEADataEditor/stata-project-with-docker) by clicking on **Fork** in the top-right corner. Then clone your version of this repository to your local machine and navigate to the folder where it was saved.
+   - OK: [Download](https://github.com/AEADataEditor/stata-project-with-docker/archive/refs/heads/main.zip) this project, expand on your computer and navigate to the folder where it was saved.
+2. [ ] [Adjust the `Dockerfile`](#adjust-the-dockerfile).
+3. [ ] [Adjust the `setup.do` file](#use-custom-setup-do-file)
+4. [ ] [Build the Docker image](#build-the-image)
+5. [ ] [Run the Docker image](#run-the-image)
 
-2. [ ] Adjust the `Dockerfile`
-3. [ ] Adjust the `setup.do` file
-4. [ ] Build the Docker image
-5. [ ] Run the Docker image
-
-If you want to leverage the cloud functionality,
+### Leveraging cloud functionality
 
 6. [ ] Upload the image to Docker Hub
 7. [ ] Sync your code with your Github repository (which you created in Step 1, by using the template or forking)
@@ -54,14 +55,19 @@ If you want to go the extra step
 
 ### Adjust the Dockerfile
 
-The [Dockerfile](Dockerfile) contains the build instructions. A few things of note:
+The [Dockerfile](Dockerfile) contains instructions to build the container. You can edit it locally by opening it on your clone of this repository to make adjustments that match your own needs and preferences.
 
-You may want to adjust the following lines to the Stata version of your choice. For released versions and "tags", see [https://hub.docker.com/u/dataeditors](https://hub.docker.com/u/dataeditors). 
+#### Set Stata version
+
+To specify the Stata version of your choice, go to [https://hub.docker.com/u/dataeditors](https://hub.docker.com/u/dataeditors), click on the version you want to use (the one you have a license for), then go to "tags" and see what is the latest available tag for this version. Then, edit the global `SRCVERSION` to match the desired version and the global `SRCTAG` to match the name of the latest tag. 
+
 ```
 ARG SRCVERSION=17
 ARG SRCTAG=2021-10-13
 ARG SRCHUBID=dataeditors
 ```
+
+#### Use custom setup do-file
 
 If you already have a setup file that installs all of your Stata packages, you do not need to rename it, simply change the following line:
 
@@ -96,35 +102,66 @@ The template repository contains a `setup.do` as an example. It should include a
 
 ### Build the image
 
-By default, the build process is documented in [`build.sh`](build.sh) and works on Linux and macOS, but all commands can be run individually as well. You should edit the contents of the [`init.config.txt`](init.config.txt):
+By default, the build process is documented in [`build.sh`](build.sh) and works on Linux and macOS, but all commands can be run individually as well. Running this script will create a docker image with instructions to build your container.
 
-```
+#### Set initial configurations
+
+You should edit the contents of the [`init.config.txt`](init.config.txt):
+
+```{bash}
 VERSION=17
 # the TAG can be anything, but could be today's date
 TAG=$(date +%F) 
+# This should be your login on Docker Hub
 MYHUBID=larsvilhuber
+# This can be anything, but might be the current repository name
 MYIMG=projectname
+# Identify where your Stata license may be. This can be hard-coded, or can be a function.
+# Remember to quote any strings that have spaces
+# STATALIC="/home/user/Stata 17/STATA.LIC"
+# STATALIC="/usr/local/stata17/stata.lic"
+STATALIC="$(find $HOME/Dropbox/ -name stata.lic.$VERSION| tail -1)"
+
+
 ```
 
-You may want to adjust the `MYHUBID` and `MYIMG` variables. `MYHUBID` is your login on Docker Hub, and `MYIMG` is the name by which you will refer to this image. A very convenient `MYIMG` name might be the same as the Github repository name (replace `projectname` with `${PWD##*/}`), but it can be anything. You can version with today's date (which is what `date +%F` prints out), or anything else.
+You will want to adjust the variables. 
 
-Once you have adjusted the [`init.config.txt`](init.config.txt), you can run [`build.sh`](build.sh) (needs a Stata license file!). This will leverage the existing Stata Docker image, add your project-specific details as specified in the [`Dockerfile`](Dockerfile), install any Stata packages as specified in the setup program, and store the project-specific Docker image locally on your computer. It will also write out the chosen configuration into `config.txt`
+- `MYHUBID` is your login on Docker Hub
+- `MYIMG` is the name by which you will refer to this image. A very convenient `MYIMG` name might be the same as the Github repository name (replace `projectname` with `${PWD##*/}`), but it can be anything. 
+- `TAG` You can version with today's date (which is what `date +%F` prints out), or anything else. 
+- `STATALIC` contains the path to your Stata license. We need this to both build and later run the image.
 
-You can now use that image to run your project's code.
+#### Run [`build.sh`](build.sh)
 
+Running the shell script [`build.sh`](build.sh) will leverage the existing Stata Docker image, add your project-specific details as specified in the [`Dockerfile`](Dockerfile), install any Stata packages as specified in the setup program, and store the project-specific Docker image locally on your computer. It will also write out the chosen configuration into `config.txt`. You will then be able to use that image to run your project's code **in the cloud or on the same machine as you built it**.
+
+1. Open the terminal
+2. Navigate to the folder where [`build.sh`](build.sh) is stored:
+
+```
+cd /your/file/path
+```
+
+3. Run the shell script:
+
+```
+source build.sh
+```
+
+If you get an *Access denied* error message or one that says not possible to *connect to the Docker deamon*, see [section on error messages, below](#error-messages). 
 
 ### Run the image
 
-The script [`run.sh`](run.sh) will pick up the configuration information in `config.txt`, and run your project inside the container image. Of note:
+The script [`run.sh`](run.sh) will pick up the configuration information in `config.txt`, and run your project inside the container image. If you have a terminal session open where you have already followed steps 1-3 in [Build the image](#build-the-image), you can simple run `source run.sh`. Otherwise, follow steps 1 and 2 above and then run `source run.sh`.
 
-- you need the Stata license again
-- it maps the `code/` sub-directory in the sample repository into the image as `/code/`. Your Stata code will want to take that into account.
-- it also maps the `data/` sub-directory into the image as `/data/`. 
-- no other subdirectory is available inside the image!
+- The image maps the `code/` sub-directory in the sample repository into the image as `/code/`. Your Stata code will want to take that into account.
+- The image also maps the `data/` sub-directory into the image as `/data/`. 
+- No other subdirectory is available inside the image!
 - The sample code [`code/main.do`](code/main.do) can be used as a template for your own main file. 
 - Your output will appear wherever Stata code writes it to. If that is within the mapped directories `/data/` and `/code`, it will be preserved once the Docker image is stopped (and deleted).
 - If you need additional sub-directories availabe in the image, you will need to map them, using additional `-v` lines.
-  - For best practice, you might want to map an additional `results` directory, e.g., `-v $(pwd)/results:/results` and instruct your Stata code to write to that. 
+- For best practice, you might want to map an additional `results` directory, e.g., by adding `-v $(pwd)/results:/results` after line 51 in [`run.sh`](run.sh) and instruct your Stata code to write to that. 
 
 ## Cloud functionality
 
@@ -250,3 +287,27 @@ The ability to conduct "continuous integration" in the cloud with Stata is a pow
 ## Comments
 
 For any comments or suggestions, please [create an issue](https://github.com/AEADataEditor/stata-project-with-docker/issues/new/choose) or contact us on [Twitter as @AeaData](https://twitter.com/AeaData).
+
+---
+
+## Error messages
+
+
+- If you get an *Access denied* or *connect to the Docker daemon* error, that means your system (typically Linux) is not configured to allow you to run `docker` commands as a regular user.  There are three different solutions to this issue:
+  
+  1. Best practice: run docker in [rootless mode](https://docs.docker.com/engine/security/rootless/)
+  1. Good: [add your user to the docker group](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user)
+  1. Bad practice: run docker as root. If you really need to choose this solution, modify the scripts
+     - by editing line 48 in [`run.sh`](run.sh) and adding `sudo` before `docker run`
+     - by editing line 17 in [`build.sh`](build.sh) and adding `sudo` before `DOCKER_BUILDKIT=1 docker build`
+
+- If you get a *connection refused* error:
+
+```
+failed to solve with frontend dockerfile.v0: failed to solve with 
+frontend gateway.v0: failed to do request: Head "https://registry-1.
+docker.io/v2/docker/dockerfile/manifests/1.2": dial tcp: lookup 
+registry-1.docker.io on [::1]:53: read udp [::1]:53098->[::1]:53: read:
+connection refused
+```
+then you may need to run `docker login` first.
