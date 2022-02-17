@@ -1,5 +1,6 @@
-# configuration created on 2021-11-25_11:15
+# configuration created on 2022-02-16_21:36
 VERSION=17
-TAG=2021-11-25
+TAG=2022-02-16
 MYHUBID=larsvilhuber
 MYIMG=projectname
+STATALIC=/home/user/Dropbox/licenses/stata.lic.17

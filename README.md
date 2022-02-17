@@ -108,16 +108,29 @@ By default, the build process is documented in [`build.sh`](build.sh) and works 
 
 You should edit the contents of the [`init.config.txt`](init.config.txt):
 
-```
+```{bash}
 VERSION=17
 # the TAG can be anything, but could be today's date
 TAG=$(date +%F) 
+# This should be your login on Docker Hub
 MYHUBID=larsvilhuber
+# This can be anything, but might be the current repository name
 MYIMG=projectname
-STATALIC=/home/user/Stata-17/STATA.LIC
+# Identify where your Stata license may be. This can be hard-coded, or can be a function.
+# Remember to quote any strings that have spaces
+# STATALIC="/home/user/Stata 17/STATA.LIC"
+# STATALIC="/usr/local/stata17/stata.lic"
+STATALIC="$(find $HOME/Dropbox/ -name stata.lic.$VERSION| tail -1)"
+
+
 ```
 
-You may want to adjust the `MYHUBID` and `MYIMG` variables. `MYHUBID` is your login on Docker Hub, and `MYIMG` is the name by which you will refer to this image. A very convenient `MYIMG` name might be the same as the Github repository name (replace `projectname` with `${PWD##*/}`), but it can be anything. You can version with today's date (which is what `date +%F` prints out), or anything else. You will also need to point to the location of the Stata license in your computer through the variable `STATALIC`.
+You will want to adjust the variables. 
+
+- `MYHUBID` is your login on Docker Hub
+- `MYIMG` is the name by which you will refer to this image. A very convenient `MYIMG` name might be the same as the Github repository name (replace `projectname` with `${PWD##*/}`), but it can be anything. 
+- `TAG` You can version with today's date (which is what `date +%F` prints out), or anything else. 
+- `STATALIC` contains the path to your Stata license. We need this to both build and later run the image.
 
 #### Run [`build.sh`](build.sh)
 
@@ -136,23 +149,11 @@ cd /your/file/path
 source build.sh
 ```
 
-You will probably need admin rights to run this code. If that is the case, you will get an *Access denied* error message or one that says not possible to *connect to the Docker deamon*. If you see that message, edit line 27 of [`build.sh`](build.sh) to run the code as admin:
-
-```
-sudo DOCKER_BUILDKIT=1 docker build \
-```
+If you get an *Access denied* error message or one that says not possible to *connect to the Docker deamon*, see [section on error messages, below](#error-messages). 
 
 ### Run the image
 
 The script [`run.sh`](run.sh) will pick up the configuration information in `config.txt`, and run your project inside the container image. If you have a terminal session open where you have already followed steps 1-3 in [Build the image](#build-the-image), you can simple run `source run.sh`. Otherwise, follow steps 1 and 2 above and then run `source run.sh`.
-
-Of note:
-
-- If you get an *Access denied* error, that means you need root privileges to run docker. There are three different solutions to this issue:
-  
-  1. Best practice: run docker in [rootless mode](https://docs.docker.com/engine/security/rootless/)
-  1. Good: [add your user to the docker group](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user)
-  1. Bad practice: run docker as root by editing line 48 in [`run.sh`](run.sh) and adding `sudo` before `docker run`
 
 - The image maps the `code/` sub-directory in the sample repository into the image as `/code/`. Your Stata code will want to take that into account.
 - The image also maps the `data/` sub-directory into the image as `/data/`. 
@@ -286,3 +287,27 @@ The ability to conduct "continuous integration" in the cloud with Stata is a pow
 ## Comments
 
 For any comments or suggestions, please [create an issue](https://github.com/AEADataEditor/stata-project-with-docker/issues/new/choose) or contact us on [Twitter as @AeaData](https://twitter.com/AeaData).
+
+---
+
+## Error messages
+
+
+- If you get an *Access denied* or *connect to the Docker daemon* error, that means your system (typically Linux) is not configured to allow you to run `docker` commands as a regular user.  There are three different solutions to this issue:
+  
+  1. Best practice: run docker in [rootless mode](https://docs.docker.com/engine/security/rootless/)
+  1. Good: [add your user to the docker group](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user)
+  1. Bad practice: run docker as root. If you really need to choose this solution, modify the scripts
+     - by editing line 48 in [`run.sh`](run.sh) and adding `sudo` before `docker run`
+     - by editing line 17 in [`build.sh`](build.sh) and adding `sudo` before `DOCKER_BUILDKIT=1 docker build`
+
+- If you get a *connection refused* error:
+
+```
+failed to solve with frontend dockerfile.v0: failed to solve with 
+frontend gateway.v0: failed to do request: Head "https://registry-1.
+docker.io/v2/docker/dockerfile/manifests/1.2": dial tcp: lookup 
+registry-1.docker.io on [::1]:53: read udp [::1]:53098->[::1]:53: read:
+connection refused
+```
+then you may need to run `docker login` first.
