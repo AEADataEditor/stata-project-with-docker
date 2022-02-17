@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# reading configuration
+# for debugging
+BUILDARGS="--progress plain --no-cache"
 
 
 # if we are on Github Actions
@@ -12,26 +13,6 @@ else
    source init.config.txt
    DOCKERIMG=$MYHUBID/$MYIMG
 fi
-
-
-# for debugging
-BUILDARGS="--progress plain --no-cache"
-
-
-if [[ -z $1 ]]
-then
-  echo "You need to specify the name of Stata license file as an argument"
-  exit 2
-fi
-#STATALIC=$(readlink -m $1)
-STATALIC=$1
-
-if [[ ! -f $STATALIC ]] 
-then
-  echo "You specified $STATALIC - that is not a file"
-	exit 2
-fi
-
 
 DOCKER_BUILDKIT=1 docker build \
   $BUILDARGS \
@@ -48,8 +29,5 @@ then
    do 
       echo ${name}=${!name} >> config.txt
    done
-fi
-
-      
-      
+fi  
    
