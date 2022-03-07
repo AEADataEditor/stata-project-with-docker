@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [[ -f config.txt ]]
 then 
    configfile=config.txt
@@ -27,8 +29,8 @@ then
    DOCKERIMG=$(echo $GITHUB_REPOSITORY | tr [A-Z] [a-z])
    TAG=latest
 else
-   DOCKEROPTS="-it --rm"
-   DOCKERIMG=$MYHUBID/$MYIMG
+   DOCKEROPTS="-it --rm -u $(id -u ${USER}):$(id -g ${USER}) "
+   DOCKERIMG=$(echo $MYHUBID/$MYIMG | tr [A-Z] [a-z])
 fi
 
 # ensure that the directories are writable by Docker
