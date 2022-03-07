@@ -11,7 +11,14 @@ then
    TAG=latest
 else
    source init.config.txt
-   DOCKERIMG=$MYHUBID/$MYIMG
+   DOCKERIMG=$(echo $MYHUBID/$MYIMG | tr [A-Z] [a-z])
+fi
+
+# Check that the configured STATALIC is actually a file
+if [[ ! -f $STATALIC ]] 
+then
+  echo "You specified $STATALIC - that is not a file"
+	exit 2
 fi
 
 DOCKER_BUILDKIT=1 docker build \
