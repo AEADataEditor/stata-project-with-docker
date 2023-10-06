@@ -4,11 +4,26 @@
          it does NOT fully comply with best practices
 */
 
-global BASEDIR "" /* <--- adjust as necessary */
-// global BASEDIR "/my/path/to/repo"  
+// in case we need it
+local tmp : pwd
+// find out where the main.do is
+capture confirm file  "code/main.do"
+if _rc != 0 {
+   display as text "We may be in the code directory"
+   capture confirm file "main.do"
+   if _rc != 0 {
+      display as text "not sure how to run"
+      exit
+   }
+   // if yes, we go up
+   cd ".."
+}
+
+global BASEDIR : pwd 
 
 global DATADIR "${BASEDIR}/data"
 global CODEDIR "${BASEDIR}/code"
+global RESULTS "${BASEDIR}/results"
 
 sysuse auto
 desc

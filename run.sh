@@ -47,8 +47,8 @@ logfile=${file%*.do}.log
 
 time docker run $DOCKEROPTS \
   -v ${STATALIC}:/usr/local/stata/stata.lic \
-  -v $(pwd)/${codedir}:/code \
-  -v $(pwd)/data:/data \
+  -v $(pwd)/:/project \
+  -w /project/code  \
   $DOCKERIMG:$TAG -b $basefile
 
 # print and check logfile

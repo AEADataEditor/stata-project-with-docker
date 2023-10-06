@@ -155,13 +155,9 @@ If you get an *Access denied* error message or one that says not possible to *co
 
 The script [`run.sh`](run.sh) will pick up the configuration information in `config.txt`, and run your project inside the container image. If you have a terminal session open where you have already followed steps 1-3 in [Build the image](#build-the-image), you can simple run `source run.sh`. Otherwise, follow steps 1 and 2 above and then run `source run.sh`.
 
-- The image maps the `code/` sub-directory in the sample repository into the image as `/code/`. Your Stata code will want to take that into account.
-- The image also maps the `data/` sub-directory into the image as `/data/`. 
-- No other subdirectory is available inside the image!
+- The image maps the project directory  in the sample repository into the image as `/project/`.
 - The sample code [`code/main.do`](code/main.do) can be used as a template for your own main file. 
-- Your output will appear wherever Stata code writes it to. If that is within the mapped directories `/data/` and `/code`, it will be preserved once the Docker image is stopped (and deleted).
-- If you need additional sub-directories availabe in the image, you will need to map them, using additional `-v` lines.
-- For best practice, you might want to map an additional `results` directory, e.g., by adding `-v $(pwd)/results:/results` after line 51 in [`run.sh`](run.sh) and instruct your Stata code to write to that. 
+- Your output will appear wherever Stata code writes it to.  For best practice, you should write to a `results`  directory.
 
 ## Cloud functionality
 
